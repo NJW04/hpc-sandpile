@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <omp.h> // OpenMP header
 
 // default grid size N x M
 #ifndef N
@@ -46,10 +47,6 @@ static inline int sync_compute_new_state(int *sand, int *next, int cols, int y, 
 int main(int argc, char *argv[])
 {
 
-    /* Setting up time variables */
-    clock_t start, end;
-    double cpuTimeUsed;
-
     const int height = N;
     const int width = M;
     const int rows = height + 2; // +2 for sink border
@@ -81,7 +78,7 @@ int main(int argc, char *argv[])
     sand[cy*cols + cx] = width * height;
     */
 
-    start = clock();
+    double start = omp_get_wtime();
     /* Relaxation loop */
     bool changed = true;
     while (changed)
@@ -101,8 +98,7 @@ int main(int argc, char *argv[])
         next = tmp;
     }
 
-    end = clock();
-    cpuTimeUsed = ((double)(end - start)) / CLOCKS_PER_SEC;
+    double end = omp_get_wtime();
 
     /* Write P6 PPM */
     FILE *fp = fopen("sandpile.ppm", "wb");
@@ -152,7 +148,7 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
     fprintf(stderr, "Wrote sandpile.ppm (%dx%d)\n", width, height);
-    fprintf(stderr, "Ran in (%f) seconds\n", cpuTimeUsed);
+    printf("Ran in (%f) seconds\n", end - start);
 
     free(sand);
     free(next);

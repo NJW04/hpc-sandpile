@@ -1,16 +1,15 @@
 #ifndef SANDPILE_H
 #define SANDPILE_H
 
-// INSYALL OMP HOMEBREW
 #include <stdbool.h>
 
 /* Interior grid dimensions */
 #ifndef N
-#define N 1000 /* Number of rows */
+#define N 1000   /* Number of rows */
 #endif
 
 #ifndef M
-#define M 1000 /* Number of columns */
+#define M 1000   /* Number of columns */
 #endif
 
 /* Total grid size including a one‐cell “ghost” border around */
