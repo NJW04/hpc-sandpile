@@ -4,6 +4,7 @@
 CC       := gcc
 CFLAGS   := -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -O3 -Wall -std=c99
 LDFLAGS  := -L/opt/homebrew/opt/libomp/lib -lomp
+SFLAGS := -O3 -Wall -std=c99
 
 # when running on cluster, exlude the -I and -L flags
 
@@ -25,11 +26,11 @@ all: serial
 serial: $(SERIAL_TARGET)
 # Link step
 $(SERIAL_TARGET): $(SERIAL_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(SFLAGS) -o $@ $^
 
 # Compile step
 $(SERIAL_OBJ): $(SERIAL_SRC)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(SFLAGS) -c $< -o $@
 
 omp: $(OMP_TARGET)
 
