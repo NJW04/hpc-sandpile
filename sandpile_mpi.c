@@ -8,11 +8,12 @@
  * Compile with:
  *   gcc -DN=512 -DM=512 -std=c99 -O3 -Wall -o sandpile_serial sandpile_serial.c
  */
-
+// paper states that asynchronous and synchronous communication both perform at same time, assuming there are no data races
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <mpi.h>
 
 // default grid size N x M
 #ifndef N
@@ -25,7 +26,7 @@
 
 static inline int sync_compute_new_state(int *sand, int *next, int cols, int y, int x)
 /*
- * Computes new sandpile state for cell [y,x] using synchronous update
+ * Computes new sandpile state for cell [y,x]
  *
  * Parameters:
  *   sand - pointer to the current sandpile grid
@@ -46,9 +47,10 @@ static inline int sync_compute_new_state(int *sand, int *next, int cols, int y, 
 int main(int argc, char *argv[])
 {
 
-    /* Setting up time variables */
-    clock_t start, end;
-    double cpuTimeUsed;
+    int rank, size;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank); // returns ID of calling process
+    MPI_Comm_size(MPI_COMM_WORLD, &size); // returns number of processes
 
     const int height = N;
     const int width = M;
@@ -72,15 +74,18 @@ int main(int argc, char *argv[])
     }
 
     /* Makes entire sandpile unstable with each cell containing 4 grains */
-    // for (int y = 1; y <= height; y++)
-    //     for (int x = 1; x <= width; x++)
-    //         sand[y * cols + x] = 4;
+    // try to avoid saving a new grid in every iteration (save part of it) -> high computation cost
+    // bottleneck is communication between processes so look into that
+    // maybe look into asynchronous communication!
+    for (int y = 1; y <= height; y++)
+        for (int x = 1; x <= width; x++)
+            sand[y * cols + x] = 4;
 
-    // Alternatively, to match Figure 1: one centre cell = width*height, rest = 0:
-    int cy = height / 2 + 1, cx = width / 2 + 1;
-    sand[cy * cols + cx] = 526338;
+    /* Alternatively, to match Figure 1: one centre cell = width*height, rest = 0:
+    int cy = height/2 + 1, cx = width/2 + 1;
+    sand[cy*cols + cx] = width * height;
+    */
 
-    start = clock();
     /* Relaxation loop */
     bool changed = true;
     while (changed)
@@ -99,8 +104,7 @@ int main(int argc, char *argv[])
         next = tmp;
     }
 
-    end = clock();
-    cpuTimeUsed = ((double)(end - start)) / CLOCKS_PER_SEC;
+    MPI_Finalize();
 
     /* Write P6 PPM */
     FILE *fp = fopen("sandpile.ppm", "wb");
@@ -150,7 +154,6 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
     fprintf(stderr, "Wrote sandpile.ppm (%dx%d)\n", width, height);
-    fprintf(stderr, "Ran in (%f) seconds\n", cpuTimeUsed);
 
     free(sand);
     free(next);

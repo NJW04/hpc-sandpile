@@ -5,7 +5,7 @@ CC       := gcc
 CFLAGS   := -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -O3 -Wall -std=c99
 LDFLAGS  := -L/opt/homebrew/opt/libomp/lib -lomp
 SFLAGS := -O3 -Wall -std=c99
-
+MFLAGS := mpicc -openmpi -mp 
 # when running on cluster, exlude the -I and -L flags
 
 # Source, Object, and Executable names
