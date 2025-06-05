@@ -16,11 +16,11 @@
 
 // default grid size N x M
 #ifndef N
-#define N 513 /* number of interior rows */
+#define N 1024 /* number of interior rows */
 #endif
 
 #ifndef M
-#define M 513 /* number of interior columns */
+#define M 1024 /* number of interior columns */
 #endif
 
 static inline int sync_compute_new_state(int *sand, int *next, int cols, int y, int x)
@@ -72,13 +72,13 @@ int main(int argc, char *argv[])
     }
 
     /* Makes entire sandpile unstable with each cell containing 4 grains */
-    // for (int y = 1; y <= height; y++)
-    //     for (int x = 1; x <= width; x++)
-    //         sand[y * cols + x] = 4;
+    for (int y = 1; y <= height; y++)
+        for (int x = 1; x <= width; x++)
+            sand[y * cols + x] = 4;
 
     // Alternatively, to match Figure 1: one centre cell = width*height, rest = 0:
-    int cy = height / 2 + 1, cx = width / 2 + 1;
-    sand[cy * cols + cx] = 526338;
+    // int cy = height / 2 + 1, cx = width / 2 + 1;
+    // sand[cy * cols + cx] = 526338;
 
     start = clock();
     /* Relaxation loop */

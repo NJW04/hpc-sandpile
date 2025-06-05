@@ -2,8 +2,13 @@ import subprocess
 import re
 import csv
 
-# Commands to run
-command = "make run"
+command = "make clean"
+subprocess.run(
+    command, shell=True, capture_output=True, text=True)
+command = "make serial"
+subprocess.run(
+    command, shell=True, capture_output=True, text=True)
+command = "make run_serial"
 
 
 output_file = 'Serial_513_513.csv'
