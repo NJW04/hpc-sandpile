@@ -1,34 +1,50 @@
-# Makefile for the sandpile serial implementation (with a run target)
+# MPI_SRC    := test.c
+#  MPI_OBJ    := test.o
+#   MPI_TARGET    := test
 
-# Compiler and flags
-CC       := gcc
-CFLAGS   := -O3 -Wall -std=c99
-
-# Source, Object, and Executable names
-SRC      := sandpile_serial.c
-OBJ      := sandpile_serial.o
-TARGET   := sandpile_serial
-
-.PHONY: all serial run clean
+.PHONY: all serial run_serial run_omp run_mpi clean 
 
 # Default: build the serial executable
-all: serial
+all: batchRun.py
 
 # Build the serial executable
-serial: $(TARGET)
-
+serial: $(SERIAL_TARGET)
 # Link step
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+$(SERIAL_TARGET): $(SERIAL_OBJ)
+	$(CC) $(SFLAGS) -o $@ $^
+#compile step
+$(SERIAL_OBJ): $(SERIAL_SRC)
+	$(CC) $(SFLAGS) -c $< -o $@
 
-# Compile step
-$(OBJ): $(SRC)
+omp: $(OMP_TARGET)
+
+$(OMP_TARGET): $(OMP_OBJ)
+	$(CC) $(LDFLAGS) -o $@ $^
+
+$(OMP_OBJ): $(OMP_SRC)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+mpi: $(MPI_TARGET)
+
+$(MPI_TARGET): $(MPI_OBJ)
+	$(MFLAGS) -o $@ $^
+
+$(MPI_OBJ): $(MPI_SRC)
+	$(MFLAGS) -c $< -o $@
+
 # Build & run the serial executable
-run: serial
-	./$(TARGET)
+run_serial: serial
+	./$(SERIAL_TARGET)
+
+run_omp: omp
+	./$(OMP_TARGET)
+
+run_mpi: mpi
+	mpiexec -np $(shell sysctl -n hw.ncpu) ./$(MPI_TARGET)
+# $(sysctl -n hw.ncpu) is for macos
 
 # Clean up
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(SERIAL_OBJ) $(SERIAL_TARGET) 
+	rm -f $(OMP_OBJ) $(OMP_TARGET)
+	rm -f $(MPI_OBJ) $(MPI_TARGET)

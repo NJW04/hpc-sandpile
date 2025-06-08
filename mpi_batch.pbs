@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=25:mem=64gb
+#PBS -q normal
+#PBS -N openMP_sandpile_25_1n
+#PBS -P WCHPC
+#PBS -l walltime=0:15:00
+#PBS -o /mnt/lustre/users/student44/sandpile/openMP/output.log
+#PBS -e /mnt/lustre/users/student44/sandpile/openMP/error.log
+#PBS -m abe
+#PBS -M wllnat033@myuct.ac.za
+
+module load chpc/python/3.7.0
+module load mpich/ge/gcc/64/3.2rc2
+
+cd /mnt/lustre/users/student44/sandpile/openMP/hpc-sandpile
+
+python3 batchRun.py
